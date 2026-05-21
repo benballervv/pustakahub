@@ -587,14 +587,14 @@ body{
                             <div class="mini-card">
                                 <div class="icon-wrapper">📚</div>
                                 <h5>Total Buku</h5>
-                                <p>1,240 Buku</p>
+                                <p><?= number_format($total_buku) ?> Buku</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="mini-card">
                                 <div class="icon-wrapper">👤</div>
                                 <h5>Anggota</h5>
-                                <p>320 Member</p>
+                                <p><?= number_format($total_anggota) ?> Member</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
