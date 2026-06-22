@@ -58,7 +58,6 @@ class Peminjaman extends BaseController
         return redirect()->to(base_url('peminjaman'))->with('success', 'Transaksi peminjaman berhasil dicatat! Stok eksemplar otomatis berkurang.');
     }
 
-    // 4. PROSES PENGEMBALIAN BUKU & HITUNG DENDA
     public function kembali($id_pinjam)
     {
         $peminjamanModel = new PeminjamanModel();
@@ -67,18 +66,16 @@ class Peminjaman extends BaseController
 
         $pinjam = $peminjamanModel->find($id_pinjam);
         
-        // PENGAMAN: Jika ID pinjam tidak ditemukan (null), kembalikan ke dashboard dengan pesan error
         if (!$pinjam) {
             return redirect()->to(base_url('peminjaman'))->with('success', 'Error: Data peminjaman dengan ID ' . esc($id_pinjam) . ' tidak ditemukan di database!');
         }
 
-        $tgl_kembali = date('Y-m-d'); // Tanggal hari ini saat tombol diklik
+        $tgl_kembali = date('Y-m-d');
         
         $jatuh_tempo   = strtotime($pinjam['tgl_jatuh_tempo']);
         $hari_kembali  = strtotime($tgl_kembali);
         $status_pinjam = 'kembali';
         
-        // Klo tanggal kembali lewat batas jatuh tempo
         if ($hari_kembali > $jatuh_tempo) {
             $status_pinjam = 'terlambat';
             $selisih_detik = $hari_kembali - $jatuh_tempo;
