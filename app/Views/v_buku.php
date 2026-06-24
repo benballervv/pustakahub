@@ -127,6 +127,7 @@
 
 <div class="modal fade" id="modalEditBuku" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
+<<<<<<< HEAD
         <div class="modal-content" style="border-radius: 20px; border: none;">
             <div class="modal-header" style="border-bottom: 1px solid #f0f0f0;">
                 <h5 class="modal-title fw-bold">✏️ Edit Data Buku</h5>
@@ -157,6 +158,27 @@
                 <div class="modal-footer" style="border-top: 1px solid #f0f0f0;">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px;">Batal</button>
                     <button type="submit" class="btn-custom">Perbarui</button>
+=======
+        <div class="modal-content" style="border-radius: 16px;">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">✏️ Edit Data Buku</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= base_url('buku/update') ?>" method="POST">
+                <?= csrf_field() ?>
+                <div class="modal-body">
+                    <input type="hidden" name="id_buku" id="edit_id">
+                    <div class="mb-3"><label class="form-label fw-semibold">ISBN</label><input type="text" name="isbn" id="edit_isbn" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">Judul Buku</label><input type="text" name="judul" id="edit_judul" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">Penulis</label><input type="text" name="penulis" id="edit_penulis" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">Penerbit</label><input type="text" name="penerbit" id="edit_penerbit" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">Tahun Terbit</label><input type="text" name="tahun_terbit" id="edit_tahun_terbit" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label fw-semibold">URL Cover Gambar</label><input type="text" name="cover_url" id="edit_cover_url" class="form-control"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="background: #6C63FF; border: none;">Perbarui</button>
+>>>>>>> 0f21e88c791778d4e216ced9030c6be9a5f53926
                 </div>
             </form>
         </div>
@@ -164,6 +186,7 @@
 </div>
 
 <script>
+<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', function () {
     const editModal = new bootstrap.Modal(document.getElementById('modalEditBuku'));
     
@@ -267,6 +290,29 @@ function isiFormOtomatis(data) {
         element.style.backgroundColor = '#e9ecef'; // Beri warna abu-abu agar terlihat terkunci (opsional)
     }); 
 }
+=======
+$(document).ready(function() {
+    $('.btn-edit').on('click', function() {
+        const id = $(this).data('id');
+        const isbn = $(this).data('isbn');
+        const judul = $(this).data('judul');
+        const penulis = $(this).data('penulis');
+        const penerbit = $(this).data('penerbit');
+        const tahun = $(this).data('tahun');
+        const cover = $(this).data('cover');
+
+        $('#edit_id').val(id);
+        $('#edit_isbn').val(isbn);
+        $('#edit_judul').val(judul);
+        $('#edit_penulis').val(penulis);
+        $('#edit_penerbit').val(penerbit);
+        $('#edit_tahun_terbit').val(tahun); 
+        $('#edit_cover_url').val(cover); 
+
+        $('#modalEditBuku').modal('show');
+    });
+});
+>>>>>>> 0f21e88c791778d4e216ced9030c6be9a5f53926
 </script>
 
 <?= $this->endSection() ?>
