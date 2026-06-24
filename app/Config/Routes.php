@@ -27,8 +27,8 @@ $routes->get('laporan', 'Laporan::index', ['filter' => 'cek_role:Admin']);
 
 // rute peminjaman, pengembalian, denda
 $routes->get('peminjaman', 'Peminjaman::index', ['filter' => 'auth']);
-$routes->get('peminjaman/tambah', 'Peminjaman::tambah', ['filter' => 'cek_role:Admin,Pustakawan,']);
-$routes->post('peminjaman/simpan', 'Peminjaman::simpan', ['filter' => 'cek_role:Admin,Pustakawan']);
+$routes->get('peminjaman/tambah', 'Peminjaman::tambah', ['filter' => 'cek_role:Admin,Pustakawan,Member']);
+$routes->post('peminjaman/simpan', 'Peminjaman::simpan', ['filter' => 'cek_role:Admin,Pustakawan,Member']);
 $routes->get('peminjaman/kembali/(:num)', 'Peminjaman::kembali/$1', ['filter' => 'cek_role:Admin,Pustakawan']);
 
 $routes->group('api', function($routes){

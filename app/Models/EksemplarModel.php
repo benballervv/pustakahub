@@ -12,7 +12,7 @@ class EksemplarModel extends Model
 
     public function getEksemplarReady()
     {
-        return $this->select('book_copies.*, books.judul')
+        return $this->select('book_copies.*, books.judul, books.cover_url')
                     ->join('books', 'books.id_buku = book_copies.id_buku')
                     ->where('status_tersedia', 'tersedia')
                     ->where('kondisi', 'bagus')
