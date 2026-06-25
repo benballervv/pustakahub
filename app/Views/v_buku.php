@@ -90,9 +90,9 @@
                 <div class="modal-body">
                     
                     <div class="p-3 mb-4 rounded" style="background-color: #f8f9fa; border: 1px dashed #6f42c1;">
-                        <label class="form-label fw-bold" style="color: #6f42c1;">🔍 Cari Data Buku Otomatis</label>
+                        <label class="form-label fw-bold" style="color: #6f42c1;">🔍 Cari Berdasarkan ISBN</label>
                         <div class="input-group mb-2">
-                            <input type="text" id="api_query" class="form-control" placeholder="Cari ISBN atau Judul..." style="border-radius: 10px 0 0 10px;">
+                            <input type="text" id="api_query" class="form-control" placeholder="Masukkan Nomor ISBN..." style="border-radius: 10px 0 0 10px;">
                             <button class="btn btn-primary" type="button" onclick="cariDiOpenLibrary()" style="border-radius: 0 10px 10px 0; background-color: #6f42c1; border-color: #6f42c1;">Cari</button>
                         </div>
                         <div id="api_status" class="small fw-semibold text-muted"></div>
@@ -112,7 +112,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" style="font-size: 0.9em;">Atau Upload File Cover</label>
-                        <input type="file" name="cover_file" class="form-control" style="border-radius: 10px;" accept="image/png, image/jpeg, image/jpg">
+                        <input type="file" name="cover_file" id="tbh_cover_file" class="form-control" style="border-radius: 10px;" accept="image/png, image/jpeg, image/jpg">
                         <small class="text-muted">Max ukuran file: 2MB. Format: JPG, PNG. (Prioritas lebih tinggi dari URL)</small>
                     </div>
                 </div>
@@ -127,7 +127,6 @@
 
 <div class="modal fade" id="modalEditBuku" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-<<<<<<< HEAD
         <div class="modal-content" style="border-radius: 20px; border: none;">
             <div class="modal-header" style="border-bottom: 1px solid #f0f0f0;">
                 <h5 class="modal-title fw-bold">✏️ Edit Data Buku</h5>
@@ -158,27 +157,6 @@
                 <div class="modal-footer" style="border-top: 1px solid #f0f0f0;">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px;">Batal</button>
                     <button type="submit" class="btn-custom">Perbarui</button>
-=======
-        <div class="modal-content" style="border-radius: 16px;">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">✏️ Edit Data Buku</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="<?= base_url('buku/update') ?>" method="POST">
-                <?= csrf_field() ?>
-                <div class="modal-body">
-                    <input type="hidden" name="id_buku" id="edit_id">
-                    <div class="mb-3"><label class="form-label fw-semibold">ISBN</label><input type="text" name="isbn" id="edit_isbn" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-semibold">Judul Buku</label><input type="text" name="judul" id="edit_judul" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-semibold">Penulis</label><input type="text" name="penulis" id="edit_penulis" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-semibold">Penerbit</label><input type="text" name="penerbit" id="edit_penerbit" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-semibold">Tahun Terbit</label><input type="text" name="tahun_terbit" id="edit_tahun_terbit" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-semibold">URL Cover Gambar</label><input type="text" name="cover_url" id="edit_cover_url" class="form-control"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="background: #6C63FF; border: none;">Perbarui</button>
->>>>>>> 0f21e88c791778d4e216ced9030c6be9a5f53926
                 </div>
             </form>
         </div>
@@ -186,7 +164,6 @@
 </div>
 
 <script>
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', function () {
     const editModal = new bootstrap.Modal(document.getElementById('modalEditBuku'));
     
@@ -203,7 +180,36 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Reset Form & Hapus Readonly saat Modal Tambah ditutup
+    // --- LOGIKA MUTUALLY EXCLUSIVE (PILIH SALAH SATU: URL ATAU FILE) ---
+    const urlInput = document.getElementById('tbh_cover');
+    const fileInput = document.getElementById('tbh_cover_file');
+
+    if (urlInput && fileInput) {
+        // Jika URL diisi, matikan input File
+        urlInput.addEventListener('input', function() {
+            if (this.value.trim() !== "") {
+                fileInput.disabled = true;
+                fileInput.style.backgroundColor = '#e9ecef';
+            } else {
+                fileInput.disabled = false;
+                fileInput.style.backgroundColor = '';
+            }
+        });
+
+        // Jika File dipilih, matikan input URL
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                urlInput.disabled = true;
+                urlInput.style.backgroundColor = '#e9ecef';
+                urlInput.value = ""; // Kosongkan URL jika user memilih file
+            } else {
+                urlInput.disabled = false;
+                urlInput.style.backgroundColor = '';
+            }
+        });
+    }
+
+    // Reset Form & Hapus Readonly/Disable saat Modal Tambah ditutup
     const modalTambah = document.getElementById('modalTambahBuku');
     modalTambah.addEventListener('hidden.bs.modal', function () {
         document.getElementById('formTambahBuku').reset();
@@ -212,51 +218,60 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const inputFields = ['tbh_isbn', 'tbh_judul', 'tbh_penulis', 'tbh_penerbit', 'tbh_tahun', 'tbh_cover'];
         inputFields.forEach(id => {
-            document.getElementById(id).removeAttribute('readonly');
-            // Menghapus efek visual terkunci jika ada
-            document.getElementById(id).style.backgroundColor = ''; 
+            let el = document.getElementById(id);
+            if(el) {
+                el.removeAttribute('readonly');
+                el.removeAttribute('disabled');
+                el.style.backgroundColor = ''; 
+            }
         });
+
+        // Reset input file secara spesifik
+        if (fileInput) {
+            fileInput.removeAttribute('disabled');
+            fileInput.style.backgroundColor = '';
+        }
     });
 });
 
-// LOGIKA API OPEN LIBRARY
+// LOGIKA API OPEN LIBRARY (KHUSUS ISBN)
 async function cariDiOpenLibrary() {
     const query = document.getElementById('api_query').value.trim();
     const statusText = document.getElementById('api_status');
     
     if (!query) {
-        statusText.innerHTML = '<span class="text-danger">Masukkan judul atau ISBN terlebih dahulu.</span>';
+        statusText.innerHTML = '<span class="text-danger">Masukkan Nomor ISBN terlebih dahulu.</span>';
         return;
     }
 
-    statusText.innerHTML = '<span class="text-primary">Mencari buku...</span>';
+    statusText.innerHTML = '<span class="text-primary">Mencari buku berdasarkan ISBN...</span>';
 
-    // Caching
-    const cacheKey = 'openlib_' + query.toLowerCase().replace(/[^a-z0-9]/g, '');
+    // Bersihkan query hanya untuk angka dan karakter 'X' untuk standarisasi cache ISBN
+    const cacheKey = 'openlib_isbn_' + query.toLowerCase().replace(/[^0-9xX]/g, '');
     const cachedData = localStorage.getItem(cacheKey);
 
     if (cachedData) {
-        statusText.innerHTML = '<span class="text-success">Data dimuat dari Cache!</span>';
+        statusText.innerHTML = '<span class="text-success">Data dimuat dari Cache! Form otomatis terkunci.</span>';
         isiFormOtomatis(JSON.parse(cachedData));
         return; 
     }
 
-    // Konsumsi API & Error Handling
+    // Konsumsi API spesifik untuk ISBN
     try {
-        const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=1`);
+        const response = await fetch(`https://openlibrary.org/search.json?isbn=${encodeURIComponent(query)}&limit=1`);
         
         if (!response.ok) throw new Error('Gagal terhubung ke server.');
 
         const data = await response.json();
         
         if (!data.docs || data.docs.length === 0) {
-            statusText.innerHTML = '<span class="text-warning">Buku tidak ditemukan di database.</span>';
+            statusText.innerHTML = '<span class="text-warning">Buku dengan ISBN tersebut tidak ditemukan.</span>';
             return;
         }
 
         const buku = data.docs[0];
         const hasilBuku = {
-            isbn: buku.isbn ? buku.isbn[0] : query,
+            isbn: query, 
             judul: buku.title || '',
             penulis: buku.author_name ? buku.author_name.join(', ') : 'Unknown',
             penerbit: buku.publisher ? buku.publisher[0] : 'Unknown',
@@ -285,34 +300,23 @@ function isiFormOtomatis(data) {
 
     fields.forEach(field => {
         const element = document.getElementById(field.id);
-        element.value = field.value;
-        element.setAttribute('readonly', true); // Kunci input
-        element.style.backgroundColor = '#e9ecef'; // Beri warna abu-abu agar terlihat terkunci (opsional)
+        if(element) {
+            element.value = field.value;
+            element.setAttribute('readonly', true); // Kunci input
+            element.style.backgroundColor = '#e9ecef';
+        }
     }); 
+
+    // Jika data cover URL didapatkan dari API, otomatis kunci input upload file
+    if (data.cover !== '') {
+        const fileInput = document.getElementById('tbh_cover_file');
+        if (fileInput) {
+            fileInput.value = ""; // Reset jika sebelumnya ada file
+            fileInput.setAttribute('disabled', true);
+            fileInput.style.backgroundColor = '#e9ecef';
+        }
+    }
 }
-=======
-$(document).ready(function() {
-    $('.btn-edit').on('click', function() {
-        const id = $(this).data('id');
-        const isbn = $(this).data('isbn');
-        const judul = $(this).data('judul');
-        const penulis = $(this).data('penulis');
-        const penerbit = $(this).data('penerbit');
-        const tahun = $(this).data('tahun');
-        const cover = $(this).data('cover');
-
-        $('#edit_id').val(id);
-        $('#edit_isbn').val(isbn);
-        $('#edit_judul').val(judul);
-        $('#edit_penulis').val(penulis);
-        $('#edit_penerbit').val(penerbit);
-        $('#edit_tahun_terbit').val(tahun); 
-        $('#edit_cover_url').val(cover); 
-
-        $('#modalEditBuku').modal('show');
-    });
-});
->>>>>>> 0f21e88c791778d4e216ced9030c6be9a5f53926
 </script>
 
 <?= $this->endSection() ?>
