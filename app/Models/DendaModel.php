@@ -12,6 +12,7 @@ class DendaModel extends Model
     protected $allowedFields = [
         'id_pinjam',
         'jumlah_bayar',
+        'order_id',
         'snap_token',
         'status_pembayaran',
         'created_at'

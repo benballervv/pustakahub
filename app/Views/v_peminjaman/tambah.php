@@ -21,12 +21,17 @@
 
             <div class="mb-4">
                 <label class="form-label fw-bold text-dark mb-2" style="font-size: 14px;">Nama Anggota Perpustakaan</label>
-                <select name="id_user" class="form-select rounded-3 bg-light border-0 px-3 py-2" style="font-size: 14px;" required>
-                    <option value="">-- Pilih Member --</option>
-                    <?php foreach ($anggota as $a) : ?>
-                        <option value="<?= $a['id_user'] ?>"><?= esc($a['nama']) ?> (<?= esc($a['email']) ?>)</option>
-                    <?php endforeach; ?>
-                </select>
+                <?php if (strtolower((string) session()->get('role')) === 'member') : ?>
+                    <input type="text" class="form-control rounded-3 bg-light border-0 px-3 py-2" value="<?= esc(session()->get('nama')) ?>" disabled style="font-size: 14px;">
+                    <!-- id_user passed via session securely in controller, no hidden input needed to prevent tampering -->
+                <?php else : ?>
+                    <select name="id_user" class="form-select rounded-3 bg-light border-0 px-3 py-2" style="font-size: 14px;" required>
+                        <option value="">-- Pilih Member --</option>
+                        <?php foreach ($anggota as $a) : ?>
+                            <option value="<?= $a['id_user'] ?>"><?= esc($a['nama']) ?> (<?= esc($a['email']) ?>)</option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php endif; ?>
             </div>
 
             <div class="mb-4">
@@ -60,7 +65,7 @@
 
             <div class="mt-5 d-flex gap-3">
                 <button type="submit" class="btn border-0 text-white fw-semibold rounded-pill px-4 py-2" style="background: linear-gradient(135deg, #a663f4, #c97af9); box-shadow: 0 4px 15px rgba(166, 99, 244, 0.3);">
-                    Simpan Peminjaman
+                    <?= (strtolower((string) session()->get('role')) === 'member') ? 'Ajukan Peminjaman' : 'Simpan Peminjaman' ?>
                 </button>
                 <a href="<?= base_url('peminjaman') ?>" class="btn btn-light px-4 rounded-pill py-2 border fw-semibold" style="font-size: 14px;">
                     Batal

@@ -71,10 +71,17 @@
 
                                 <a href="<?= base_url('payment/'.$row['id_bayar']) ?>"
                                    class="btn btn-primary btn-sm">
-
                                     Bayar
-
                                 </a>
+
+                                <?php $role = strtolower((string) session()->get('role')); ?>
+                                <?php if($role === 'admin' || $role === 'pustakawan'): ?>
+                                    <a href="<?= base_url('denda/lunas_manual/'.$row['id_bayar']) ?>"
+                                       class="btn btn-success btn-sm ms-1"
+                                       onclick="return confirm('Tandai denda ini sebagai Lunas secara manual?')">
+                                        Tandai Lunas
+                                    </a>
+                                <?php endif; ?>
 
                             <?php else: ?>
 

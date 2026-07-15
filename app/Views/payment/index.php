@@ -44,8 +44,13 @@
 
             </button>
 
+            <!-- Tombol khusus untuk mengatasi webhook localhost -->
+            <a href="<?= base_url('payment/simulate/' . $denda['id_bayar']) ?>" class="btn btn-warning ms-2" title="Gunakan ini setelah bayar di Midtrans karena Webhook tidak bisa masuk ke localhost">
+                <i class="bi bi-arrow-repeat"></i> Simulasi Webhook (Localhost)
+            </a>
+
             <a href="<?= base_url('denda') ?>"
-               class="btn btn-secondary">
+               class="btn btn-secondary ms-2">
 
                 Kembali
 
@@ -92,9 +97,11 @@ $(document).ready(function(){
 
                         onSuccess: function(result){
 
-                            alert("Pembayaran Berhasil");
+                            alert("Pembayaran Midtrans Berhasil!");
 
-                            window.location.href = "<?= base_url('denda') ?>";
+                            // Karena kita di localhost dan tidak pakai Ngrok, 
+                            // kita trigger endpoint simulate untuk update DB & WA.
+                            window.location.href = "<?= base_url('payment/simulate/' . $denda['id_bayar']) ?>";
 
                         },
 

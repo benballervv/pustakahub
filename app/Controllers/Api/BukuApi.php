@@ -100,4 +100,48 @@ class BukuApi extends BaseController
             'message' => 'Buku berhasil dihapus'
         ]);
     }
+
+    public function show_by_isbn($isbn)
+    {
+        if ($cek = $this->cekApiKey()) return $cek;
+
+        $buku = $this->bukuModel->where('isbn', $isbn)->first();
+
+        if (!$buku) {
+            return $this->response->setStatusCode(404)
+                ->setJSON([
+                    'status' => false,
+                    'message' => 'Buku dengan ISBN tersebut tidak ditemukan'
+                ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => true,
+            'data' => $buku
+        ]);
+    }
+
+    public function availability($id)
+    {
+        if ($cek = $this->cekApiKey()) return $cek;
+
+        $eksemplarModel = new \App\Models\EksemplarModel();
+        
+        $tersedia = $eksemplarModel->where('id_buku', $id)
+                                   ->where('status_tersedia', 'tersedia')
+                                   ->countAllResults();
+
+        $total = $eksemplarModel->where('id_buku', $id)
+                                ->countAllResults();
+
+        return $this->response->setJSON([
+            'status' => true,
+            'data' => [
+                'id_buku' => $id,
+                'total_eksemplar' => $total,
+                'tersedia' => $tersedia,
+                'status' => ($tersedia > 0) ? 'Available' : 'Out of Stock'
+            ]
+        ]);
+    }
 }

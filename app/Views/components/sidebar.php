@@ -15,7 +15,7 @@
                 </a>
             </li>
             
-            <?php if ($role === 'admin') : ?>
+            <?php if ($role === 'admin' || $role === 'pustakawan') : ?>
                 <li>
                     <a href="<?= base_url('buku') ?>" class="<?= url_is('buku*') ? 'active' : '' ?>">
                         <i class="bi bi-book-fill"></i> Buku
@@ -36,6 +36,11 @@
             <li>
                 <a href="<?= base_url('peminjaman') ?>" class="<?= url_is('peminjaman*') ? 'active' : '' ?>">
                     <i class="bi bi-journal-arrow-up"></i> Peminjaman
+                </a>
+            </li>
+            <li>
+                <a href="<?= base_url('denda') ?>" class="<?= url_is('denda*') || url_is('payment*') ? 'active' : '' ?>">
+                    <i class="bi bi-wallet2"></i> Denda & Tagihan
                 </a>
             </li>
         </ul>

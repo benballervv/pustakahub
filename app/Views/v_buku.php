@@ -54,6 +54,8 @@
                             <td style="color: #555;"><?= esc($buku['penerbit']) ?></td>
                             <td><span class="badge-custom"><?= esc($buku['tahun_terbit']) ?></span></td>
                             <td class="text-center">
+                                <a href="<?= base_url('buku/eksemplar/' . $buku['id_buku']) ?>" class="btn btn-sm btn-light text-primary" style="border-radius: 8px;" title="Kelola Eksemplar">📚</a>
+                                
                                 <button class="btn btn-sm btn-light btn-edit" 
                                         data-id="<?= $buku['id_buku'] ?>"
                                         data-isbn="<?= $buku['isbn'] ?>"
@@ -61,9 +63,9 @@
                                         data-penulis="<?= $buku['penulis'] ?>"
                                         data-penerbit="<?= $buku['penerbit'] ?>"
                                         data-tahun="<?= $buku['tahun_terbit'] ?>"
-                                        data-cover="<?= $buku['cover_url'] ?>" style="border-radius: 8px;">✏️</button>
+                                        data-cover="<?= $buku['cover_url'] ?>" style="border-radius: 8px;" title="Edit Buku">✏️</button>
                                 
-                                <a href="<?= base_url('buku/hapus/' . $buku['id_buku']) ?>" class="btn btn-sm btn-light text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus buku ini?');" style="border-radius: 8px;">🗑️</a>
+                                <a href="<?= base_url('buku/hapus/' . $buku['id_buku']) ?>" class="btn btn-sm btn-light text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus buku ini?');" style="border-radius: 8px;" title="Hapus Buku">🗑️</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

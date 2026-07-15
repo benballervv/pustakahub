@@ -10,9 +10,9 @@ class PeminjamanModel extends Model
     protected $primaryKey       = 'id_pinjam';
     protected $allowedFields    = ['id_user', 'id_eksemplar', 'tgl_pinjam', 'tgl_jatuh_tempo', 'tgl_kembali', 'status_pinjam'];
 
-   public function getSemuaTransaksi()
+   public function getSemuaTransaksi($id_user = null)
 {
-    return $this->select('
+    $query = $this->select('
         loans.*,
         users.nama as nama_anggota,
         book_copies.kode_eksemplar,
@@ -25,8 +25,13 @@ class PeminjamanModel extends Model
     ->join('users', 'users.id_user = loans.id_user')
     ->join('book_copies', 'book_copies.id_eksemplar = loans.id_eksemplar')
     ->join('books', 'books.id_buku = book_copies.id_buku')
-    ->join('fines', 'fines.id_pinjam = loans.id_pinjam', 'left')
-    ->orderBy('loans.id_pinjam', 'DESC')
+    ->join('fines', 'fines.id_pinjam = loans.id_pinjam', 'left');
+
+    if ($id_user !== null) {
+        $query->where('loans.id_user', $id_user);
+    }
+
+    return $query->orderBy('loans.id_pinjam', 'DESC')
     ->findAll();
 }
 }

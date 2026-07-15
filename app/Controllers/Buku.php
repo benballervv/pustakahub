@@ -138,4 +138,58 @@ class Buku extends BaseController
         // Lempar ke file v_katalog.php (Variabel yang dilempar sekarang adalah $katalog_buku)
         return view('v_katalog', $data);
     }
+
+    // 5. KELOLA EKSEMPLAR
+    public function eksemplar($id_buku)
+    {
+        $buku = $this->bukuModel->find($id_buku);
+        if (!$buku) return redirect()->to(base_url('buku'));
+
+        $eksemplarModel = new EksemplarModel();
+        $data = [
+            'buku' => $buku,
+            'eksemplar' => $eksemplarModel->where('id_buku', $id_buku)->findAll()
+        ];
+
+        return view('v_eksemplar', $data);
+    }
+
+    public function simpan_eksemplar()
+    {
+        $eksemplarModel = new EksemplarModel();
+        $id_buku = $this->request->getPost('id_buku');
+
+        $eksemplarModel->save([
+            'id_buku' => $id_buku,
+            'kode_eksemplar' => $this->request->getPost('kode_eksemplar'),
+            'kondisi' => $this->request->getPost('kondisi'),
+            'lokasi_rak' => $this->request->getPost('lokasi_rak'),
+            'status_tersedia' => $this->request->getPost('status_tersedia')
+        ]);
+
+        return redirect()->to(base_url('buku/eksemplar/' . $id_buku))->with('success', 'Eksemplar berhasil ditambahkan!');
+    }
+
+    public function update_eksemplar()
+    {
+        $eksemplarModel = new EksemplarModel();
+        $id_buku = $this->request->getPost('id_buku');
+        $id_eksemplar = $this->request->getPost('id_eksemplar');
+
+        $eksemplarModel->update($id_eksemplar, [
+            'kode_eksemplar' => $this->request->getPost('kode_eksemplar'),
+            'kondisi' => $this->request->getPost('kondisi'),
+            'lokasi_rak' => $this->request->getPost('lokasi_rak'),
+            'status_tersedia' => $this->request->getPost('status_tersedia')
+        ]);
+
+        return redirect()->to(base_url('buku/eksemplar/' . $id_buku))->with('success', 'Eksemplar berhasil diperbarui!');
+    }
+
+    public function hapus_eksemplar($id_eksemplar, $id_buku)
+    {
+        $eksemplarModel = new EksemplarModel();
+        $eksemplarModel->delete($id_eksemplar);
+        return redirect()->to(base_url('buku/eksemplar/' . $id_buku))->with('success', 'Eksemplar berhasil dihapus!');
+    }
 }

@@ -1,69 +1,161 @@
-# CodeIgniter 4 Application Starter
+# 📚 PustakaHub - Sistem Manajemen Perpustakaan Digital
 
-## What is CodeIgniter?
+PustakaHub adalah Sistem Informasi Manajemen Perpustakaan Digital modern yang dibangun menggunakan **CodeIgniter 4**. Sistem ini dirancang untuk memenuhi spesifikasi Project Pemrograman Web Lanjut (UAS). 
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+Sistem ini mendukung pengelolaan katalog buku, manajemen eksemplar, peminjaman, pengembalian, dan sistem denda otomatis yang terintegrasi penuh dengan **Midtrans Payment Gateway** dan **WhatsApp Notifications (WAHA)**.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+---
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## ✨ Fitur Utama
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+- **Multi-Role Authentication**: Akses berbeda untuk `Admin`, `Pustakawan`, dan `Member`.
+- **Open Library API Integration**: Auto-fill detail buku (Judul, Penulis, Penerbit, Cover) hanya dengan memasukkan ISBN.
+- **Sistem Denda & Payment Gateway**: Kalkulasi denda otomatis (Rp 2.000/hari) dan integrasi pembayaran online menggunakan **Midtrans Sandbox**.
+- **WhatsApp & Email Notifications**: Notifikasi otomatis saat peminjaman disetujui, reminder H-1 jatuh tempo, dan tagihan denda.
+- **Laporan & PDF Generation**: Ekspor laporan peminjaman bulanan, tanda terima peminjaman, dan kartu anggota dalam format PDF menggunakan **Dompdf**.
+- **RESTful API**: Endpoint publik (`/api/books`, `/api/availability`) untuk konsumsi mobile apps/layanan eksternal.
+- **Beautiful UI/UX**: Antarmuka modern, responsif, dan konsisten.
 
-## Installation & updates
+---
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+## 🛠️ Persyaratan Sistem
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+- PHP >= 8.2
+- MySQL / MariaDB
+- Composer
+- Extension PHP: `intl`, `mbstring`, `curl`, `json`
 
-## Setup
+---
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+## 🚀 Cara Instalasi
 
-## Important Change with index.php
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/username/PWL_UAS.git
+   cd PWL_UAS
+   ```
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+2. **Install Dependencies**
+   ```bash
+   composer install
+   ```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+3. **Konfigurasi Environment**
+   Ubah file `.env.example` menjadi `.env` dan atur konfigurasi database serta API Key:
+   ```env
+   # Database Configuration
+   database.default.hostname = localhost
+   database.default.database = db_perpustakaan
+   database.default.username = root
+   database.default.password = 
 
-**Please** read the user guide for a better explanation of how CI4 works!
+   # Midtrans Keys (Ganti dengan key sandbox Anda)
+   midtrans.serverKey = SB-Mid-server-xxxx
+   midtrans.clientKey = SB-Mid-client-xxxx
+   
+   # WAHA / Email Configs
+   waha.endpoint = http://localhost:3000/api/sendText
+   ```
 
-## Repository Management
+4. **Jalankan Migrasi & Seeder**
+   Sistem dilengkapi dengan `DummyDataSeeder` yang akan otomatis meng-generate 50 buku, 20 anggota, dan riwayat peminjaman.
+   ```bash
+   php spark migrate
+   php spark db:seed DummyDataSeeder
+   ```
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+5. **Jalankan Server Lokal**
+   ```bash
+   php spark serve
+   ```
+   Akses aplikasi di `http://localhost:8080`.
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+---
 
-## Server Requirements
+## 🔑 Akun Demo
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+Gunakan akun berikut untuk melakukan testing pada sistem:
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+| Role | Email | Password |
+|---|---|---|
+| **Admin** | `admin@pustakahub.com` | `password123` |
+| **Pustakawan** | `pustakawan@pustakahub.com` | `password123` |
+| **Member** | *Gunakan data dari seeder atau daftar baru* | `password123` |
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+---
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## 📅 Cron Job / Reminder Otomatis
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Untuk menjalankan reminder H-1 jatuh tempo secara otomatis, jalankan Spark command berikut secara manual atau daftarkan pada Task Scheduler/Crontab:
+```bash
+php spark app:send_reminder
+```
+
+---
+
+## 🗺️ Entity Relationship Diagram (ERD)
+
+Struktur database kami telah dinormalisasi hingga bentuk 3NF untuk menghindari redudansi data antara Buku dan Eksemplar.
+
+```mermaid
+erDiagram
+    USERS {
+        int id_user PK
+        string nama
+        string email
+        string password
+        string role
+        string no_telp
+        text alamat
+    }
+    BOOKS {
+        int id_buku PK
+        string judul
+        string penulis
+        string penerbit
+        string isbn
+        string kategori
+        string cover_image
+    }
+    BOOK_COPIES {
+        int id_eksemplar PK
+        int id_buku FK
+        string kode_eksemplar
+        string status_tersedia
+        string kondisi
+        string lokasi_rak
+    }
+    LOANS {
+        int id_pinjam PK
+        int id_user FK
+        int id_eksemplar FK
+        date tgl_pinjam
+        date tgl_jatuh_tempo
+        date tgl_kembali
+        string status_pinjam
+    }
+    FINES {
+        int id_bayar PK
+        int id_pinjam FK
+        string order_id
+        decimal jumlah_bayar
+        string status_pembayaran
+        string snap_token
+    }
+
+    BOOKS ||--o{ BOOK_COPIES : "memiliki"
+    USERS ||--o{ LOANS : "meminjam"
+    BOOK_COPIES ||--o{ LOANS : "dipinjam_dalam"
+    LOANS ||--o| FINES : "menghasilkan"
+```
+
+---
+
+## 📸 Screenshot Fitur Utama
+
+*(Harap tambahkan screenshot dari aplikasi Anda di bawah ini sebelum pengumpulan!)*
+
+- **Dashboard Admin:** `![Dashboard Admin](link-gambar-disini)`
+- **Peminjaman Buku:** `![Peminjaman Buku](link-gambar-disini)`
+- **Katalog Buku Member:** `![Katalog Buku](link-gambar-disini)`
+- **Payment Gateway Midtrans:** `![Payment Gateway](link-gambar-disini)`

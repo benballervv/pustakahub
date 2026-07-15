@@ -18,7 +18,10 @@ class Peminjaman extends BaseController
 
         $peminjamanModel = new PeminjamanModel();
         
-        $data['transaksi'] = $peminjamanModel->getSemuaTransaksi();
+        $role = strtolower((string) session()->get('role'));
+        $id_user = ($role === 'member') ? session()->get('id_user') : null;
+
+        $data['transaksi'] = $peminjamanModel->getSemuaTransaksi($id_user);
         return view('v_peminjaman/index', $data);
     }
 
@@ -43,19 +46,105 @@ class Peminjaman extends BaseController
     {
         $peminjamanModel = new PeminjamanModel();
         $eksemplarModel  = new EksemplarModel();
-        $id_eksemplar    = $this->request->getPost('id_eksemplar');
+        
+        $role = strtolower((string) session()->get('role'));
+        
+        // Keamanan: Jika Member, paksa id_user dari session
+        $id_user = ($role === 'member') ? session()->get('id_user') : $this->request->getPost('id_user');
+        
+        // Status awal: diajukan untuk Member, langsung dipinjam untuk Admin
+        $status_pinjam = ($role === 'member') ? 'diajukan' : 'dipinjam';
+        
+        $id_eksemplar = $this->request->getPost('id_eksemplar');
 
         $peminjamanModel->save([
-            'id_user'         => $this->request->getPost('id_user'),
+            'id_user'         => $id_user,
             'id_eksemplar'    => $id_eksemplar,
             'tgl_pinjam'      => $this->request->getPost('tgl_pinjam'),
             'tgl_jatuh_tempo' => $this->request->getPost('tgl_jatuh_tempo'),
-            'status_pinjam'   => 'dipinjam'
+            'status_pinjam'   => $status_pinjam
         ]);
 
+        // Tetap ubah status eksemplar jadi dipinjam agar tidak dipinjam orang lain saat menunggu persetujuan
         $eksemplarModel->update($id_eksemplar, ['status_tersedia' => 'dipinjam']);
 
-        return redirect()->to(base_url('peminjaman'))->with('success', 'Transaksi peminjaman berhasil dicatat! Stok eksemplar otomatis berkurang.');
+        $pesanSukses = ($role === 'member') ? 'Pengajuan peminjaman berhasil dikirim! Menunggu persetujuan Pustakawan.' : 'Transaksi peminjaman berhasil dicatat! Stok eksemplar otomatis berkurang.';
+        
+        return redirect()->to(base_url('peminjaman'))->with('success', $pesanSukses);
+    }
+
+    // 4. SETUJUI PEMINJAMAN
+    public function setujui($id_pinjam)
+    {
+        $peminjamanModel = new PeminjamanModel();
+        
+        $peminjamanModel->update($id_pinjam, [
+            'status_pinjam' => 'dipinjam'
+        ]);
+
+        // Panggil WA API notifikasi
+        $pinjam = $peminjamanModel->select('loans.*, users.nama as nama_anggota, users.no_telp, books.judul')
+            ->join('users', 'users.id_user = loans.id_user')
+            ->join('book_copies', 'book_copies.id_eksemplar = loans.id_eksemplar')
+            ->join('books', 'books.id_buku = book_copies.id_buku')
+            ->where('loans.id_pinjam', $id_pinjam)
+            ->first();
+
+        if ($pinjam && !empty($pinjam['no_telp'])) {
+            $notifService = new \App\Libraries\NotificationService();
+            $pesan = "Halo {$pinjam['nama_anggota']},\n\nPengajuan peminjaman buku *{$pinjam['judul']}* telah **DISETUJUI**.\n\nHarap kembalikan buku paling lambat tanggal {$pinjam['tgl_jatuh_tempo']}.\n\nTerima kasih,\nPustakaHub";
+            $notifService->sendWhatsAppMessage($pinjam['no_telp'], $pesan);
+        }
+
+        return redirect()->to(base_url('peminjaman'))->with('success', 'Peminjaman berhasil disetujui!');
+    }
+
+    // 5. TOLAK PEMINJAMAN
+    public function tolak($id_pinjam)
+    {
+        $peminjamanModel = new PeminjamanModel();
+        $eksemplarModel  = new EksemplarModel();
+
+        $pinjam = $peminjamanModel->find($id_pinjam);
+        if ($pinjam) {
+            // Kembalikan status eksemplar ke tersedia
+            $eksemplarModel->update($pinjam['id_eksemplar'], ['status_tersedia' => 'tersedia']);
+            // Hapus data peminjaman yang diajukan
+            $peminjamanModel->delete($id_pinjam);
+        }
+
+        return redirect()->to(base_url('peminjaman'))->with('success', 'Pengajuan peminjaman ditolak dan dibatalkan.');
+    }
+
+    // 6. CETAK RECEIPT (TANDA TERIMA)
+    public function cetak_receipt($id_pinjam)
+    {
+        $peminjamanModel = new PeminjamanModel();
+        
+        // Query manual / bisa dibuat function di model. 
+        // Menggunakan join agar data buku dan anggota lengkap.
+        $data['transaksi'] = $peminjamanModel->select('loans.*, users.nama as nama_anggota, users.email, book_copies.kode_eksemplar, books.judul')
+            ->join('users', 'users.id_user = loans.id_user')
+            ->join('book_copies', 'book_copies.id_eksemplar = loans.id_eksemplar')
+            ->join('books', 'books.id_buku = book_copies.id_buku')
+            ->where('loans.id_pinjam', $id_pinjam)
+            ->first();
+
+        if (!$data['transaksi']) {
+            return redirect()->to(base_url('peminjaman'))->with('error', 'Transaksi tidak ditemukan!');
+        }
+
+        $html = view('v_peminjaman/receipt', $data);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new \Dompdf\Dompdf($options);
+        
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        
+        $dompdf->stream('Tanda_Terima_Peminjaman_' . $id_pinjam . '.pdf', ['Attachment' => 0]);
     }
 
     public function kembali($id_pinjam)

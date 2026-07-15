@@ -46,18 +46,20 @@ class Payment extends BaseController
         }
 
         try {
+            $orderId = 'DENDA-' . $denda['id_bayar'] . '-' . time();
 
             $params = [
                 'transaction_details' => [
-                    'order_id' => 'DENDA-' . $denda['id_bayar'] . '-' . time(),
+                    'order_id' => $orderId,
                     'gross_amount' => (int) $denda['jumlah_bayar']
                 ]
             ];
 
             $snapToken = Snap::getSnapToken($params);
 
-            // Simpan Snap Token ke database
+            // Simpan Snap Token dan Order ID ke database
             $this->dendaModel->update($id, [
+                'order_id' => $orderId,
                 'snap_token' => $snapToken
             ]);
 
@@ -104,49 +106,73 @@ class Payment extends BaseController
         ]);
         $denda = $this->dendaModel->getDendaWithUser($idBayar);
 
-if ($denda) {
+        if ($denda) {
+            $this->kirimEmail(
+                $denda['email'],
+                $denda['nama'],
+                $denda['jumlah_bayar']
+            );
 
-    $this->kirimEmail(
-
-        $denda['email'],
-
-        $denda['nama'],
-
-        $denda['jumlah_bayar']
-
-    );
-
-}
-
+            // Kirim WA
+            if (!empty($denda['no_telp'])) {
+                $notifService = new \App\Libraries\NotificationService();
+                $pesan = "Halo {$denda['nama']},\n\nTerima kasih, pembayaran denda Anda sebesar Rp " . number_format($denda['jumlah_bayar'], 0, ',', '.') . " telah **BERHASIL**.\n\nStatus denda Anda sekarang adalah LUNAS.\n\nPustakaHub";
+                $notifService->sendWhatsAppMessage($denda['no_telp'], $pesan);
+            }
+        }
     }
 
     return $this->response->setStatusCode(200);
 }
 
-public function simulate($idBayar)
-{
-    // Ambil data denda beserta user
-    $denda = $this->dendaModel->getDendaWithUser($idBayar);
+    public function simulate($idBayar)
+    {
+        // Ambil data denda beserta user
+        $denda = $this->dendaModel->getDendaWithUser($idBayar);
 
-    if (!$denda) {
-        return redirect()->back()->with('error', 'Data denda tidak ditemukan.');
+        if (!$denda) {
+            return redirect()->back()->with('error', 'Data denda tidak ditemukan.');
+        }
+
+        if (empty($denda['order_id'])) {
+            return redirect()->back()->with('error', 'Belum ada transaksi Midtrans. Silakan klik Bayar Sekarang terlebih dahulu.');
+        }
+
+        try {
+            \Config\Midtrans::init();
+            // Cek status aslinya dari Midtrans API
+            $statusResponse = \Midtrans\Transaction::status($denda['order_id']);
+
+            if ($statusResponse->transaction_status == 'settlement' || $statusResponse->transaction_status == 'capture') {
+                
+                // Update status pembayaran jika BENAR-BENAR lunas di Midtrans
+                $this->dendaModel->update($idBayar, [
+                    'status_pembayaran' => 'paid'
+                ]);
+
+                // Kirim email
+                $this->kirimEmail(
+                    $denda['email'],
+                    $denda['nama'],
+                    $denda['jumlah_bayar']
+                );
+
+                // Kirim WA
+                if (!empty($denda['no_telp'])) {
+                    $notifService = new \App\Libraries\NotificationService();
+                    $pesan = "Halo {$denda['nama']},\n\nTerima kasih, pembayaran denda Anda sebesar Rp " . number_format($denda['jumlah_bayar'], 0, ',', '.') . " telah **BERHASIL**.\n\nStatus denda Anda sekarang adalah LUNAS.\n\nPustakaHub";
+                    $notifService->sendWhatsAppMessage($denda['no_telp'], $pesan);
+                }
+
+                return redirect()->to('/denda')->with('success', 'Sinkronisasi berhasil! Pembayaran terkonfirmasi.');
+            } else {
+                return redirect()->back()->with('error', 'Status di Midtrans masih: ' . $statusResponse->transaction_status . '. Harap selesaikan pembayaran terlebih dahulu.');
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal cek Midtrans: ' . $e->getMessage());
+        }
     }
-
-    // Update status pembayaran
-    $this->dendaModel->update($idBayar, [
-        'status_pembayaran' => 'paid'
-    ]);
-
-    // Kirim email
-    $this->kirimEmail(
-        $denda['email'],
-        $denda['nama'],
-        $denda['jumlah_bayar']
-    );
-
-    return redirect()->to('/denda')
-        ->with('success', 'Simulasi pembayaran berhasil. Email berhasil dikirim.');
-}
 private function kirimEmail($emailTujuan, $nama, $jumlah)
 {
     $email = \Config\Services::email();
