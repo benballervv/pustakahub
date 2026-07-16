@@ -93,8 +93,7 @@ class DummyDataSeeder extends Seeder
                 'tgl_pinjam' => $tgl_pinjam,
                 'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
                 'tgl_kembali' => $tgl_kembali,
-                'status_pinjam' => $status,
-                'created_at' => date('Y-m-d H:i:s')
+                'status_pinjam' => $status
             ];
 
             if ($status == 'dipinjam' || $status == 'terlambat') {

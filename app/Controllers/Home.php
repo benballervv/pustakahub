@@ -18,7 +18,7 @@ class Home extends BaseController
             ->join('users', 'users.id_user = loans.id_user')
             ->join('book_copies', 'book_copies.id_eksemplar = loans.id_eksemplar')
             ->join('books', 'books.id_buku = book_copies.id_buku')
-            ->orderBy('loans.updated_at', 'DESC')
+            ->orderBy('loans.id_pinjam', 'DESC')
             ->limit(5)
             ->findAll();
 
