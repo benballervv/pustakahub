@@ -193,4 +193,28 @@ class Peminjaman extends BaseController
 
         return redirect()->to(base_url('peminjaman'))->with('success', 'Buku dikembalikan tepat waktu! Status eksemplar ready kembali.');
     }
+
+    // 8. KIRIM NOTIFIKASI MANUAL (WA)
+    public function kirim_notif_manual($id_pinjam)
+    {
+        $peminjamanModel = new PeminjamanModel();
+        
+        $pinjam = $peminjamanModel->select('loans.*, users.nama as nama_anggota, users.no_telp, books.judul')
+            ->join('users', 'users.id_user = loans.id_user')
+            ->join('book_copies', 'book_copies.id_eksemplar = loans.id_eksemplar')
+            ->join('books', 'books.id_buku = book_copies.id_buku')
+            ->where('loans.id_pinjam', $id_pinjam)
+            ->first();
+
+        if ($pinjam && !empty($pinjam['no_telp'])) {
+            $notifService = new \App\Libraries\NotificationService();
+            $pesan = "Halo {$pinjam['nama_anggota']},\n\nIni adalah pesan pengingat dari PustakaHub.\nMohon segera periksa status peminjaman buku *{$pinjam['judul']}* Anda yang berstatus: *{$pinjam['status_pinjam']}*.\n\nJatuh tempo: {$pinjam['tgl_jatuh_tempo']}\n\nTerima kasih.";
+            
+            $notifService->sendWhatsAppMessage($pinjam['no_telp'], $pesan);
+            
+            return redirect()->to(base_url('peminjaman'))->with('success', 'Notifikasi manual via WhatsApp berhasil dikirim ke anggota!');
+        }
+
+        return redirect()->to(base_url('peminjaman'))->with('error', 'Gagal mengirim notifikasi. Pastikan data peminjaman valid dan nomor telepon anggota tersedia.');
+    }
 }

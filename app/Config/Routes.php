@@ -45,6 +45,7 @@ $routes->post('peminjaman/simpan', 'Peminjaman::simpan', ['filter' => 'cek_role:
 $routes->get('peminjaman/kembali/(:num)', 'Peminjaman::kembali/$1', ['filter' => 'cek_role:Admin,Pustakawan']);
 $routes->get('peminjaman/setujui/(:num)', 'Peminjaman::setujui/$1', ['filter' => 'cek_role:Admin,Pustakawan']);
 $routes->get('peminjaman/tolak/(:num)', 'Peminjaman::tolak/$1', ['filter' => 'cek_role:Admin,Pustakawan']);
+$routes->get('peminjaman/kirim_notif_manual/(:num)', 'Peminjaman::kirim_notif_manual/$1', ['filter' => 'cek_role:Admin,Pustakawan']);
 $routes->get('peminjaman/cetak_receipt/(:num)', 'Peminjaman::cetak_receipt/$1', ['filter' => 'auth']);
 
 // Laporan routes

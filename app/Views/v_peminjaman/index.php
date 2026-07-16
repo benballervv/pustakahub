@@ -100,6 +100,11 @@
                                             <a href="<?= base_url('peminjaman/cetak_receipt/' . $row['id_pinjam']) ?>" target="_blank" class="btn btn-sm btn-light rounded-pill px-3 py-1 shadow-sm border mb-1" style="font-size: 12px; font-weight:600;">
                                                 🖨️ Cetak Struk
                                             </a>
+                                            <?php if (in_array($sessionRole, ['admin', 'pustakawan']) && in_array($row['status_pinjam'], ['dipinjam', 'terlambat'])) : ?>
+                                                <a href="<?= base_url('peminjaman/kirim_notif_manual/' . $row['id_pinjam']) ?>" class="btn btn-sm btn-info text-white rounded-pill px-3 py-1 shadow-sm mb-1" onclick="return confirm('Kirim notifikasi WhatsApp ke anggota ini?');" style="font-size: 12px; font-weight:600;">
+                                                    💬 Kirim Notif
+                                                </a>
+                                            <?php endif; ?>
                                         <?php elseif (!in_array($sessionRole, ['admin', 'pustakawan']) && $row['status_pinjam'] == 'diajukan'): ?>
                                             <span class="text-muted fw-medium" style="font-size: 13px;">⏳ Diproses</span>
                                         <?php endif; ?>

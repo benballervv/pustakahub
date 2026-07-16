@@ -23,7 +23,7 @@ class LibrarySeeder extends Seeder
         // 1. SEED AKUN ADMIN (Password: admin123)
         $this->db->table('users')->insert([
             'nama'       => 'Admin Pustakawan',
-            'email'      => 'admin@perpus.com',
+            'email'      => 'admin@gmail.com',
             'password'   => password_hash('admin123', PASSWORD_DEFAULT),
             'no_telp'    => '08123456789',
             'role'       => 'admin',

@@ -1,104 +1,57 @@
-# 📚 PustakaHub - Sistem Manajemen Perpustakaan Digital
+# PustakaHub - Sistem Manajemen Perpustakaan Digital
 
-PustakaHub adalah Sistem Informasi Manajemen Perpustakaan Digital modern yang dibangun menggunakan **CodeIgniter 4**. Sistem ini dirancang untuk memenuhi spesifikasi Project Pemrograman Web Lanjut (UAS). 
+PustakaHub adalah aplikasi web untuk manajemen perpustakaan yang dibangun menggunakan **CodeIgniter 4**. Aplikasi ini dibuat untuk memenuhi tugas akhir (UAS) mata kuliah Pemrograman Web Lanjut.
 
-Sistem ini mendukung pengelolaan katalog buku, manajemen eksemplar, peminjaman, pengembalian, dan sistem denda otomatis yang terintegrasi penuh dengan **Midtrans Payment Gateway** dan **WhatsApp Notifications (WAHA)**.
+## Fitur Utama
+- **Manajemen Akun**: Multi-role untuk Admin, Pustakawan, dan Member.
+- **Katalog Buku & Eksemplar**: Terintegrasi dengan Open Library API untuk auto-fill data buku menggunakan ISBN.
+- **Peminjaman & Denda**: Perhitungan denda otomatis (Rp 2.000/hari) untuk pengembalian yang terlambat.
+- **Pembayaran Denda**: Terintegrasi dengan Midtrans Sandbox untuk pembayaran denda online.
+- **Notifikasi**: Pengiriman notifikasi otomatis via WhatsApp (WAHA) saat peminjaman disetujui dan pengingat jatuh tempo.
+- **Laporan & Dokumen**: Cetak struk peminjaman, kartu anggota, dan laporan bulanan dalam format PDF (menggunakan Dompdf).
+- **RESTful API**: Tersedia endpoint API publik di `/api/books` dan `/api/availability`.
 
----
+## Instalasi
 
-## ✨ Fitur Utama
-
-- **Multi-Role Authentication**: Akses berbeda untuk `Admin`, `Pustakawan`, dan `Member`.
-- **Open Library API Integration**: Auto-fill detail buku (Judul, Penulis, Penerbit, Cover) hanya dengan memasukkan ISBN.
-- **Sistem Denda & Payment Gateway**: Kalkulasi denda otomatis (Rp 2.000/hari) dan integrasi pembayaran online menggunakan **Midtrans Sandbox**.
-- **WhatsApp & Email Notifications**: Notifikasi otomatis saat peminjaman disetujui, reminder H-1 jatuh tempo, dan tagihan denda.
-- **Laporan & PDF Generation**: Ekspor laporan peminjaman bulanan, tanda terima peminjaman, dan kartu anggota dalam format PDF menggunakan **Dompdf**.
-- **RESTful API**: Endpoint publik (`/api/books`, `/api/availability`) untuk konsumsi mobile apps/layanan eksternal.
-- **Beautiful UI/UX**: Antarmuka modern, responsif, dan konsisten.
-
----
-
-## 🛠️ Persyaratan Sistem
-
-- PHP >= 8.2
-- MySQL / MariaDB
-- Composer
-- Extension PHP: `intl`, `mbstring`, `curl`, `json`
-
----
-
-## 🚀 Cara Instalasi
-
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/username/PWL_UAS.git
-   cd PWL_UAS
-   ```
-
-2. **Install Dependencies**
+1. Clone repository ini ke komputer Anda.
+2. Buka terminal di dalam folder project dan jalankan perintah:
    ```bash
    composer install
    ```
-
-3. **Konfigurasi Environment**
-   Ubah file `.env.example` menjadi `.env` dan atur konfigurasi database serta API Key:
-   ```env
-   # Database Configuration
-   database.default.hostname = localhost
-   database.default.database = db_perpustakaan
-   database.default.username = root
-   database.default.password = 
-
-   # Midtrans Keys (Ganti dengan key sandbox Anda)
-   midtrans.serverKey = SB-Mid-server-xxxx
-   midtrans.clientKey = SB-Mid-client-xxxx
-   
-   # WAHA / Email Configs
-   waha.endpoint = http://localhost:3000/api/sendText
-   ```
-
-4. **Jalankan Migrasi & Seeder**
-   Sistem dilengkapi dengan `DummyDataSeeder` yang akan otomatis meng-generate 50 buku, 20 anggota, dan riwayat peminjaman.
-   ```bash
-   php spark migrate
-   php spark db:seed DummyDataSeeder
-   ```
-
-5. **Jalankan Server Lokal**
+3. Copy file `.env.example` dan ubah namanya menjadi `.env`. Sesuaikan konfigurasi database dan API Key Midtrans Anda di dalam file tersebut.
+4. Setup database dapat dilakukan dengan 2 cara:
+   - **Cara A (Manual)**: Buat database kosong bernama `db_perpustakaan`, lalu import file `db_perpustakaan.sql` yang sudah disediakan ke dalam phpMyAdmin.
+   - **Cara B (Migrate)**: Jalankan migrasi dan seeder untuk membuat tabel serta mengisi data awal:
+     ```bash
+     php spark migrate --seed
+     ```
+5. Jalankan server lokal CodeIgniter:
    ```bash
    php spark serve
    ```
-   Akses aplikasi di `http://localhost:8080`.
+   Aplikasi dapat diakses melalui browser pada `http://localhost:8080`.
 
----
+## Akun Demo
+Gunakan akun berikut untuk menguji aplikasi:
+- **Admin**: `destian@gmail.com` | Password: `admin123`
+- **Member**: `jevon@gmail.com` | Password: `member123`
 
-## 🔑 Akun Demo
-
-Gunakan akun berikut untuk melakukan testing pada sistem:
-
-| Role | Email | Password |
-|---|---|---|
-| **Admin** | `admin@pustakahub.com` | `password123` |
-| **Pustakawan** | `pustakawan@pustakahub.com` | `password123` |
-| **Member** | *Gunakan data dari seeder atau daftar baru* | `password123` |
-
----
-
-## 📅 Cron Job / Reminder Otomatis
-
-Untuk menjalankan reminder H-1 jatuh tempo secara otomatis, jalankan Spark command berikut secara manual atau daftarkan pada Task Scheduler/Crontab:
+## Menjalankan Cron Job (Reminder Otomatis)
+Untuk menjalankan pengingat jatuh tempo H-1 via WhatsApp secara manual untuk keperluan demo, ketik perintah berikut di terminal:
 ```bash
 php spark app:send_reminder
 ```
 
----
-
-## 🗺️ Entity Relationship Diagram (ERD)
-
-Struktur database kami telah dinormalisasi hingga bentuk 3NF untuk menghindari redudansi data antara Buku dan Eksemplar.
+## Entity Relationship Diagram (ERD)
+Struktur database telah melalui proses normalisasi hingga bentuk 3NF.
 
 ```mermaid
 erDiagram
+    USERS ||--o{ LOANS : "melakukan"
+    BOOKS ||--o{ BOOK_COPIES : "memiliki"
+    BOOK_COPIES ||--o{ LOANS : "dipinjam"
+    LOANS ||--o| FINES : "menghasilkan"
+
     USERS {
         int id_user PK
         string nama
@@ -106,15 +59,11 @@ erDiagram
         string password
         string role
         string no_telp
-        text alamat
     }
     BOOKS {
         int id_buku PK
         string judul
-        string penulis
-        string penerbit
         string isbn
-        string kategori
         string cover_image
     }
     BOOK_COPIES {
@@ -122,8 +71,6 @@ erDiagram
         int id_buku FK
         string kode_eksemplar
         string status_tersedia
-        string kondisi
-        string lokasi_rak
     }
     LOANS {
         int id_pinjam PK
@@ -137,25 +84,13 @@ erDiagram
     FINES {
         int id_bayar PK
         int id_pinjam FK
-        string order_id
         decimal jumlah_bayar
         string status_pembayaran
-        string snap_token
     }
-
-    BOOKS ||--o{ BOOK_COPIES : "memiliki"
-    USERS ||--o{ LOANS : "meminjam"
-    BOOK_COPIES ||--o{ LOANS : "dipinjam_dalam"
-    LOANS ||--o| FINES : "menghasilkan"
 ```
 
----
-
-## 📸 Screenshot Fitur Utama
-
-*(Harap tambahkan screenshot dari aplikasi Anda di bawah ini sebelum pengumpulan!)*
-
-- **Dashboard Admin:** `![Dashboard Admin](link-gambar-disini)`
-- **Peminjaman Buku:** `![Peminjaman Buku](link-gambar-disini)`
-- **Katalog Buku Member:** `![Katalog Buku](link-gambar-disini)`
-- **Payment Gateway Midtrans:** `![Payment Gateway](link-gambar-disini)`
+## Screenshot Fitur
+*(Silakan tambahkan screenshot aplikasi di sini)*
+- Dashboard Admin
+- Form Peminjaman Buku
+- Halaman Pembayaran Midtrans
