@@ -90,7 +90,6 @@ erDiagram
 ```
 
 ## Screenshot Fitur
-*(Silakan tambahkan screenshot aplikasi di sini)*
-- Dashboard Admin
-- Form Peminjaman Buku
-- Halaman Pembayaran Midtrans
+  <img width="958" height="1116" alt="image" src="https://github.com/user-attachments/assets/41b6edb3-d7b9-4fa7-a78a-54d9f5971e9f" />
+  <img width="959" height="1115" alt="image" src="https://github.com/user-attachments/assets/96ea058d-9e69-4632-bf8e-d9085b97da88" />
+<img width="956" height="1115" alt="image" src="https://github.com/user-attachments/assets/4b7eb75c-b2b8-416d-9541-ae2432f609d4" />
